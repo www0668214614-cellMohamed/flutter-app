@@ -1,84 +1,109 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MaterialApp(home: Calculator()));
+void main() => runApp(FarmManagerApp());
 
-class Calculator extends StatefulWidget {
+class FarmManagerApp extends StatelessWidget {
   @override
-  _CalculatorState createState() => _CalculatorState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'مربي الأغنام الذكي',
+      theme: ThemeData(primarySwatch: Colors.green, fontFamily: 'Arial'),
+      home: FarmHomeScreen(),
+    );
+  }
 }
 
-class _CalculatorState extends State<Calculator> {
-  String text = '0';
-  double numOne = 0;
-  double numTwo = 0;
-  String result = '0';
-  String finalResult = '0';
-  String opr = '';
-  String preOpr = '';
-
-  void calculation(btnText) {
-    if (btnText == 'C') {
-      text = '0'; numOne = 0; numTwo = 0; result = '0'; finalResult = '0'; opr = ''; preOpr = '';
-    } else if (opr == '=' && btnText == '=') {
-      // لا تفعل شيئاً
-    } else if (btnText == '+' || btnText == '-' || btnText == 'x' || btnText == '/' || btnText == '=') {
-      if (numOne == 0) {
-        numOne = double.parse(result);
-      } else {
-        numTwo = double.parse(result);
-      }
-      if (opr == '+') finalResult = add();
-      else if (opr == '-') finalResult = sub();
-      else if (opr == 'x') finalResult = mul();
-      else if (opr == '/') finalResult = div();
-      preOpr = opr;
-      opr = btnText;
-      result = '';
-    } else {
-      result = result + btnText;
-      finalResult = result;
-    }
-    setState(() { text = finalResult; });
-  }
-
-  String add() => (numOne + numTwo).toString();
-  String sub() => (numOne - numTwo).toString();
-  String mul() => (numOne * numTwo).toString();
-  String div() => (numOne / numTwo).toString();
-
+class FarmHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(title: Text('آلة حاسبة بسيطة'), backgroundColor: Colors.black),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      appBar: AppBar(title: Text('تطبيق المربي الذكي - إدارة الأغنام'), centerTitle: true),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildStatCard('إجمالي عدد الأغنام', '150 رأس', Colors.blue),
+            SizedBox(height: 15),
+            _buildSectionTitle('الحالة الصحية للقطيع'),
+            Row(
+              children: [
+                _buildSmallCard('سليمة', '140', Colors.green),
+                _buildSmallCard('تحت العلاج', '10', Colors.orange),
+              ],
+            ),
+            SizedBox(height: 20),
+            _buildSectionTitle('أوقات الدواء القادمة'),
+            _buildMedicineItem('تطعيم الدوري', 'غداً - 08:00 صباحاً'),
+            _buildMedicineItem('مضاد حيوي (المجموعة ب)', 'بعد يومين'),
+            SizedBox(height: 20),
+            _buildSectionTitle('توزيع الأعمار'),
+            _buildAgeRow('حملان (أقل من 6 أشهر)', '40 رأس'),
+            _buildAgeRow('أغنام بالغة', '110 رأس'),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add),
+        tooltip: 'إضافة رأس جديد',
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, Color color) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(15)),
+      child: Column(
         children: [
-          Text(text, style: TextStyle(color: Colors.white, fontSize: 80)),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            button('7', Colors.grey), button('8', Colors.grey), button('9', Colors.grey), button('/', Colors.orange),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            button('4', Colors.grey), button('5', Colors.grey), button('6', Colors.grey), button('x', Colors.orange),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            button('1', Colors.grey), button('2', Colors.grey), button('3', Colors.grey), button('-', Colors.orange),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            button('C', Colors.red), button('0', Colors.grey), button('=', Colors.orange), button('+', Colors.orange),
-          ]),
+          Text(title, style: TextStyle(color: Colors.white, fontSize: 18)),
+          Text(value, style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget button(String txt, Color col) {
-    return Container(
-      padding: EdgeInsets.only(bottom: 10),
-      child: ElevatedButton(
-        onPressed: () => calculation(txt),
-        child: Text(txt, style: TextStyle(fontSize: 30)),
-        style: ElevatedButton.styleFrom(backgroundColor: col, shape: CircleBorder(), padding: EdgeInsets.all(20)),
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Align(alignment: Alignment.centerRight, child: Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+    );
+  }
+
+  Widget _buildSmallCard(String title, String count, Color color) {
+    return Expanded(
+      child: Card(
+        color: color.withOpacity(0.1),
+        child: Padding(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            children: [
+              Text(title, style: TextStyle(fontSize: 16)),
+              Text(count, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMedicineItem(String name, String time) {
+    return ListTile(
+      leading: Icon(Icons.medication, color: Colors.red),
+      title: Text(name),
+      subtitle: Text(time),
+      trailing: Icon(Icons.notifications_active, color: Colors.orange),
+    );
+  }
+
+  Widget _buildAgeRow(String label, String count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [Text(label), Text(count, style: TextStyle(fontWeight: FontWeight.bold))],
       ),
     );
   }
